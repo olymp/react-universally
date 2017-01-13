@@ -41,3 +41,4 @@ flow-coverage/
 
 # Happypack
 .happypack
+example/.build

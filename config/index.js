@@ -62,7 +62,7 @@ let config = {
   includeSourceMapsForProductionBuilds: false,
 
   // Path to the shared src between the bundles.
-  bundlesSharedSrcPath: 'universally/src/shared',
+  bundlesSharedSrcPath: './app',
 
   // These extensions are tried when resolving src files for our bundles..
   bundleSrcTypes: ['js', 'jsx', 'json'],
@@ -207,6 +207,8 @@ let config = {
 
       // Src paths.
       srcPaths: [
+        './universally.config.js',
+        './app',
         'universally/src/client',
         'universally/src/shared',
         // The service worker offline page generation needs access to the
@@ -257,6 +259,8 @@ let config = {
 
       // Src paths.
       srcPaths: [
+        './universally.config.js',
+        './app',
         'universally/src/server',
         'universally/src/shared',
         'universally/config',

@@ -5,7 +5,7 @@ import { render } from 'react-dom';
 import { BrowserRouter } from 'react-router';
 import { CodeSplitProvider, rehydrateState } from 'code-split-component';
 import ReactHotLoader from './components/ReactHotLoader';
-import DemoApp from '../shared/components/DemoApp';
+import DemoApp from '@app';
 
 // Get the DOM Element that will host our React application.
 const container = document.querySelector('#app');

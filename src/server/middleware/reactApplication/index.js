@@ -5,7 +5,7 @@ import { ServerRouter, createServerRenderContext } from 'react-router';
 import { CodeSplitProvider, createRenderContext } from 'code-split-component';
 import Helmet from 'react-helmet';
 import generateHTML from './generateHTML';
-import DemoApp from '../../../shared/components/DemoApp';
+import DemoApp from '@app';
 import config from '../../../../config';
 
 /**
