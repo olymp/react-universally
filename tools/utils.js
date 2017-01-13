@@ -7,6 +7,7 @@ import path from 'path';
 
 const base = path.resolve(__dirname, '..');
 export const resolve = (uri) => {
+  if (!uri) return uri;
   if (uri.indexOf('./') === 0) return path.resolve(appRootDir.get(), uri);
   if (uri.indexOf('../') === 0) return path.resolve(appRootDir.get(), uri);
   if (uri.indexOf('universally/') === 0) return path.resolve(base, uri.substr('universally/'.length));
