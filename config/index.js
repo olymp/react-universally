@@ -34,6 +34,9 @@ let config = {
   // Disable server side rendering?
   disableSSR: false,
 
+  // The folder where happypack temps into
+  happypackOutputPath: './.happypack',
+
   // How long should we set the browser cache for the served assets?
   // Don't worry, we add hashes to the files, so if they change the new files
   // will be served to browsers.
