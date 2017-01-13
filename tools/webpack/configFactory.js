@@ -9,7 +9,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import appRootDir from 'app-root-dir';
 import WebpackMd5Hash from 'webpack-md5-hash';
 import CodeSplitPlugin from 'code-split-component/webpack';
-import { removeEmpty, ifElse, merge, happyPackPlugin } from '../utils';
+import { removeEmpty, ifElse, merge, happyPackPlugin, resolve } from '../utils';
 import config, { clientConfig } from '../../config';
 
 /**
@@ -54,6 +54,10 @@ export default function webpackConfigFactory(buildOptions) {
 
   if (!bundleConfig) {
     throw new Error('No bundle configuration exists for target:', target);
+  }
+
+  if (isNode) {
+    require.extensions['.css'] = () => undefined;
   }
 
   const webpackConfig = {
@@ -139,15 +143,15 @@ export default function webpackConfigFactory(buildOptions) {
         // bundles.
         ifNode('source-map-support/register'),
         // Required to support hot reloading of our client.
-        ifDevClient('react-hot-loader/patch'),
+        ifDevClient(require.resolve('react-hot-loader/patch')),
         // Required to support hot reloading of our client.
-        ifDevClient(() => `webpack-hot-middleware/client?reload=true&path=http://${config.host}:${config.clientDevServerPort}/__webpack_hmr`),
+        ifDevClient(() => `${require.resolve('webpack-hot-middleware/client')}?reload=true&path=http://${config.host}:${config.clientDevServerPort}/__webpack_hmr`),
         // We are using polyfill.io instead of the very heavy babel-polyfill.
         // Therefore we need to add the regenerator-runtime as the babel-polyfill
         // included this, which polyfill.io doesn't include.
-        ifClient('regenerator-runtime/runtime'),
+        ifClient(require.resolve('regenerator-runtime/runtime')),
         // The source entry file for the bundle.
-        path.resolve(appRootDir.get(), bundleConfig.srcEntryFile),
+        resolve(bundleConfig.srcEntryFile),
       ]),
     },
 
@@ -155,7 +159,7 @@ export default function webpackConfigFactory(buildOptions) {
     output: merge(
       {
         // The dir in which our bundle should be output.
-        path: path.resolve(appRootDir.get(), bundleConfig.outputPath),
+        path: resolve(bundleConfig.outputPath),
         // The filename format for our bundle's entries.
         filename: ifProdClient(
           // For our production client bundles we include a hash in the filename.
@@ -191,8 +195,28 @@ export default function webpackConfigFactory(buildOptions) {
     ),
 
     resolve: {
+      alias: Object.assign({}, config.alias || {}, {
+        '@root': path.resolve(appRootDir.get()),
+        '@app': resolve(config.bundlesSharedSrcPath),
+        react: path.resolve(appRootDir.get(), 'node_modules', 'react'),
+        'react-dom': path.resolve(appRootDir.get(), 'node_modules', 'react-dom'),
+      }),
+      modules: [
+        path.resolve(appRootDir.get(), 'app'),
+        path.resolve(appRootDir.get(), 'node_modules'),
+        path.resolve(__dirname, '..', '..', 'node_modules'),
+        'node_modules',
+      ],
       // These extensions are tried when resolving a file.
       extensions: config.bundleSrcTypes.map(ext => `.${ext}`),
+    },
+
+    resolveLoader: {
+      modules: [
+        path.resolve(appRootDir.get(), 'node_modules'),
+        path.resolve(__dirname, '..', '..', 'node_modules'),
+        'node_modules',
+      ],
     },
 
     plugins: removeEmpty([
@@ -251,7 +275,7 @@ export default function webpackConfigFactory(buildOptions) {
       ifClient(() =>
         new AssetsPlugin({
           filename: config.bundleAssetsFileName,
-          path: path.resolve(appRootDir.get(), bundleConfig.outputPath),
+          path: resolve(bundleConfig.outputPath),
         }),
       ),
 
@@ -317,9 +341,10 @@ export default function webpackConfigFactory(buildOptions) {
       // HappyPack 'javascript' instance.
       happyPackPlugin({
         name: 'happypack-javascript',
+        tempDir: resolve(config.happypackOutputPath),
         // We will use babel to do all our JS processing.
         loaders: [{
-          path: 'babel-loader',
+          path: require.resolve('babel-loader'),
           // We will create a babel config and pass it through the plugin
           // defined in the project configuration, allowing additional
           // items to be added.
@@ -334,16 +359,16 @@ export default function webpackConfigFactory(buildOptions) {
 
               presets: [
                 // JSX
-                'react',
+                require.resolve('babel-preset-react'),
                 // Stage 3 javascript syntax.
                 // "Candidate: complete spec and initial browser implementations."
                 // Add anything lower than stage 3 at your own risk. :)
-                'stage-3',
+                require.resolve('babel-preset-stage-3'),
                 // For our client bundles we transpile all the latest ratified
                 // ES201X code into ES5, safe for browsers.  We exclude module
                 // transilation as webpack takes care of this for us, doing
                 // tree shaking in the process.
-                ifClient(['latest', { es2015: { modules: false } }]),
+                ifClient([require.resolve('babel-preset-latest'), { es2015: { modules: false } }]),
                 // For a node bundle we use the awesome babel-preset-env which
                 // acts like babel-preset-latest in that it supports the latest
                 // ratified ES201X syntax, however, it will only transpile what
@@ -354,18 +379,18 @@ export default function webpackConfigFactory(buildOptions) {
                 // take care of that for us ensuring tree shaking takes place.
                 // NOTE: Make sure you use the same node version for development
                 // and production.
-                ifNode(['env', { targets: { node: true }, modules: false }]),
+                ifNode([require.resolve('babel-preset-env'), { targets: { node: true }, modules: false }]),
               ].filter(x => x != null),
 
               plugins: [
                 // Required to support react hot loader.
-                ifDevClient('react-hot-loader/babel'),
+                ifDevClient(require.resolve('react-hot-loader/babel')),
                 // This decorates our components with  __self prop to JSX elements,
                 // which React will use to generate some runtime warnings.
-                ifDev('transform-react-jsx-self'),
+                ifDev(require.resolve('babel-plugin-transform-react-jsx-self')),
                 // Adding this will give us the path to our components in the
                 // react dev tools.
-                ifDev('transform-react-jsx-source'),
+                ifDev(require.resolve('babel-plugin-transform-react-jsx-source')),
                 // The following plugin supports the code-split-component
                 // instances, taking care of all the heavy boilerplate that we
                 // would have had to do ourselves to get code splitting w/SSR
@@ -376,7 +401,7 @@ export default function webpackConfigFactory(buildOptions) {
                 // React Hot Loader, which we use in development.
                 ifElse(isProd && (isServer || isClient))(
                   [
-                    'code-split-component/babel',
+                    require.resolve('code-split-component/babel'),
                     {
                       // For our server bundle we will set the mode as being 'server'
                       // which will ensure that our code split components can be
@@ -397,10 +422,11 @@ export default function webpackConfigFactory(buildOptions) {
       ifDevClient(
         () => happyPackPlugin({
           name: 'happypack-devclient-css',
+          tempDir: resolve(config.happypackOutputPath),
           loaders: [
-            'style-loader',
+            require.resolve('style-loader'),
             {
-              path: 'css-loader',
+              path: require.resolve('css-loader'),
               // Include sourcemaps for dev experience++.
               query: { sourceMap: true },
             },
@@ -421,8 +447,8 @@ export default function webpackConfigFactory(buildOptions) {
         ifElse(config.serviceWorker.enabled)(
           () => new HtmlWebpackPlugin({
             filename: config.serviceWorker.offlinePageFileName,
-            template: path.resolve(
-              appRootDir.get(), config.serviceWorker.offlinePageTemplate,
+            template: resolve(
+              config.serviceWorker.offlinePageTemplate,
             ),
             minify: {
               removeComments: true,
@@ -527,8 +553,8 @@ export default function webpackConfigFactory(buildOptions) {
               // Add any included public folder assets.
               .concat(
                 config.serviceWorker.includePublicAssets.reduce((acc, cur) => {
-                  const publicAssetPathGlob = path.resolve(
-                    appRootDir.get(), config.publicAssetsPath, cur,
+                  const publicAssetPathGlob = resolve(
+                    config.publicAssetsPath, cur,
                   );
                   const publicFileWebPaths = acc.concat(
                     // First get all the matching public folder assets.
@@ -536,7 +562,7 @@ export default function webpackConfigFactory(buildOptions) {
                     // Then map them to relative paths against the public folder.
                     // We need to do this as we need the "web" paths for each one.
                     .map(publicFile => path.relative(
-                      path.resolve(appRootDir.get(), config.publicAssetsPath),
+                      resolve(config.publicAssetsPath),
                       publicFile,
                     ))
                     // Add the leading "/" indicating the file is being hosted
@@ -559,12 +585,12 @@ export default function webpackConfigFactory(buildOptions) {
           // named "happypack-javascript".
           // See the respective plugin within the plugins section for full
           // details on what loader is being implemented.
-          loader: 'happypack/loader?id=happypack-javascript',
+          loader: `${require.resolve('happypack/loader')}?id=happypack-javascript`,
           include: removeEmpty([
             ...bundleConfig.srcPaths.map(srcPath =>
-              path.resolve(appRootDir.get(), srcPath),
+              resolve(srcPath),
             ),
-            ifProdClient(path.resolve(appRootDir.get(), 'src/html')),
+            ifProdClient(path.resolve(__dirname, './src/html')),
           ]),
         },
 
@@ -582,7 +608,7 @@ export default function webpackConfigFactory(buildOptions) {
             // See the respective plugin within the plugins section for full
             // details on what loader is being implemented.
             ifDevClient({
-              loaders: ['happypack/loader?id=happypack-devclient-css'],
+              loaders: [`${require.resolve('happypack/loader')}?id=happypack-devclient-css`],
             }),
             // For a production client build we use the ExtractTextPlugin which
             // will extract our CSS into CSS files. We don't use happypack here
@@ -592,14 +618,14 @@ export default function webpackConfigFactory(buildOptions) {
             // plugins section too.
             ifProdClient(() => ({
               loader: ExtractTextPlugin.extract({
-                fallbackLoader: 'style-loader',
-                loader: ['css-loader'],
+                fallbackLoader: require.resolve('style-loader'),
+                loader: [require.resolve('css-loader')],
               }),
             })),
             // When targetting the server we use the "/locals" version of the
             // css loader, as we don't need any css files for the server.
             ifNode({
-              loaders: ['css-loader/locals'],
+              loaders: [require.resolve('css-loader/locals')],
             }),
           ),
         ),
@@ -610,7 +636,7 @@ export default function webpackConfigFactory(buildOptions) {
         // server.
         ifElse(isClient || isServer)(() => ({
           test: new RegExp(`\\.(${config.bundleAssetTypes.join('|')})$`, 'i'),
-          loader: 'file-loader',
+          loader: require.resolve('file-loader'),
           query: {
             // What is the web path that the client bundle will be served from?
             // The same value has to be used for both the client and the
@@ -633,5 +659,5 @@ export default function webpackConfigFactory(buildOptions) {
   };
 
   // Apply the configuration middleware.
-  return config.plugins.webpackConfig(webpackConfig, buildOptions);
+  return config.plugins.webpackConfig(webpackConfig, buildOptions, config, { removeEmpty, ifElse, merge, happyPackPlugin, resolve, ExtractTextPlugin });
 }

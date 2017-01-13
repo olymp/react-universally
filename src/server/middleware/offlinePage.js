@@ -21,7 +21,7 @@ export default function offlinePageMiddleware(req, res, next) {
     pathResolve(
       appRootDir.get(),
       config.bundles.client.outputPath,
-      config.serviceWorker.offlinePageFileName,
+      config.serviceWorker.offlinePageFileName
     ),
     'utf-8',
     (err, data) => {
@@ -31,6 +31,6 @@ export default function offlinePageMiddleware(req, res, next) {
       }
       const withNonce = data.replace('NONCE_TARGET', nonce);
       res.send(withNonce);
-    },
+    }
   );
 }

@@ -11,6 +11,9 @@ function createVendorDLL(bundleName, bundleConfig) {
 
   // $FlowFixMe
   const pkg = require(pathResolve(appRootDir.get(), './package.json'));
+  const pkg2 = require(pathResolve(__dirname, '..', '..', 'package.json'));
+  const dependencies = Object.assign({}, pkg2.dependencies, pkg.dependencies);
+  const devDependencies = Object.assign({}, pkg2.devDependencies, pkg.devDependencies);
 
   const devDLLDependencies = dllConfig.include.sort();
 
@@ -22,7 +25,7 @@ function createVendorDLL(bundleName, bundleConfig) {
       // We do this to include any possible version numbers we may have for
       // a dependency. If these change then our hash should too, which will
       // result in a new dev dll build.
-      [dep, pkg.dependencies[dep], pkg.devDependencies[dep]],
+      [dep, dependencies[dep], devDependencies[dep]],
     ),
   ));
 

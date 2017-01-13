@@ -3,13 +3,22 @@ import notifier from 'node-notifier';
 import colors from 'colors/safe';
 import { execSync } from 'child_process';
 import appRootDir from 'app-root-dir';
+import path from 'path';
 
+const base = path.resolve(__dirname, '..');
+export const resolve = (uri) => {
+  if (uri.indexOf('./') === 0) return path.resolve(appRootDir.get(), uri);
+  if (uri.indexOf('../') === 0) return path.resolve(appRootDir.get(), uri);
+  if (uri.indexOf('universally/') === 0) return path.resolve(base, uri.substr('universally/'.length));
+  return uri;
+};
 
 // Generates a HappyPack plugin.
 // @see https://github.com/amireh/happypack/
-export function happyPackPlugin({ name, loaders }) {
+export function happyPackPlugin({ name, loaders, tempDir }) {
   return new HappyPack({
     id: name,
+    tempDir,
     verbose: false,
     threads: 5,
     loaders,

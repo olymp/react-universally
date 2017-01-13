@@ -7,7 +7,9 @@
 
 import { getStringEnvVar, getIntEnvVar } from './internals/environmentVars';
 import filterObject from './internals/filterObject';
-
+import path from 'path';
+import fs from 'fs';
+import appRootDir from 'app-root-dir';
 
 // This protects us from accidentally including this configuration in our
 // client bundle. That would be a big NO NO to do. :)
@@ -15,7 +17,7 @@ if (process.env.IS_CLIENT) {
   throw new Error("You shouldn't be importing the `./config` directly into your 'client' or 'shared' source as the configuration object will get included in your client bundle. Not a safe move! Instead, use the `safeConfigGet` helper function (located at `./src/shared/utils/config`) within the 'client' or 'shared' source files to reference configuration values in a safe manner.");
 }
 
-const config = {
+let config = {
   // The host on which the server should run.
   host: getStringEnvVar('SERVER_HOST', 'localhost'),
 
@@ -41,7 +43,7 @@ const config = {
 
   // Path to the public assets that will be served off the root of the
   // HTTP server.
-  publicAssetsPath: './public',
+  publicAssetsPath: 'universally/public',
 
   // Where does our build output live?
   buildOutputPath: './build',
@@ -57,7 +59,7 @@ const config = {
   includeSourceMapsForProductionBuilds: false,
 
   // Path to the shared src between the bundles.
-  bundlesSharedSrcPath: './src/shared',
+  bundlesSharedSrcPath: 'universally/src/shared',
 
   // These extensions are tried when resolving src files for our bundles..
   bundleSrcTypes: ['js', 'jsx', 'json'],
@@ -79,6 +81,10 @@ const config = {
     'woff2',
     'otf',
   ],
+
+  alias: {
+
+  },
 
   // What should we name the json output file that webpack generates
   // containing details of all output files for a bundle?
@@ -135,7 +141,7 @@ const config = {
     // Path to the template used by HtmlWebpackPlugin to generate an offline
     // page that will be used by the service worker to render our application
     // offline.
-    offlinePageTemplate: './tools/webpack/offlinePage',
+    offlinePageTemplate: 'universally/tools/webpack/offlinePage',
     // Offline page file name.
     offlinePageFileName: 'offline.html',
   },
@@ -194,16 +200,16 @@ const config = {
   bundles: {
     client: {
       // Src entry file.
-      srcEntryFile: './src/client/index.js',
+      srcEntryFile: 'universally/src/client/index.js',
 
       // Src paths.
       srcPaths: [
-        './src/client',
-        './src/shared',
+        'universally/src/client',
+        'universally/src/shared',
         // The service worker offline page generation needs access to the
         // config folder.  Don't worry we have guards within the config files
         // to ensure they never get included in a client bundle.
-        './config',
+        'universally/config',
       ],
 
       // Where does the client bundle output live?
@@ -244,13 +250,13 @@ const config = {
 
     server: {
       // Src entry file.
-      srcEntryFile: './src/server/index.js',
+      srcEntryFile: 'universally/src/server/index.js',
 
       // Src paths.
       srcPaths: [
-        './src/server',
-        './src/shared',
-        './config',
+        'universally/src/server',
+        'universally/src/shared',
+        'universally/config',
       ],
 
       // Where does the server bundle output live?
@@ -343,6 +349,19 @@ const config = {
   },
 };
 
+// Try find appRootDir.get()/universally.config.js
+try {
+  const appConfig = require(path.resolve(appRootDir.get(), 'universally.config.js'));
+  if (appConfig.default) config = appConfig.default(config);
+  else config = appConfig(config);
+} catch (err1) { // Try find _app_root_/universally.config.js, since above will not work from compiled modules
+  try {
+    const appConfig = require('@root/universally.config.js');
+    if (appConfig.default) config = appConfig.default(config);
+    else config = appConfig(config);
+  } catch (err) {  console.log(`Could not find ${path.resolve(appRootDir.get(), 'universally.config.js')}, using default settings`, err1, err); }
+}
+
 // Export the client configuration object.
 export const clientConfig = filterObject(
   // We will filter our full application configuration object...
@@ -388,7 +407,7 @@ export const clientConfig = filterObject(
     // We need to expose all the htmlPage settings.
     htmlPage: true,
     additionalNodeBundles: true,
-  },
+  }
 );
 
 // Export the main config as the default export.

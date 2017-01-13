@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'development') {
   // is used to host our client bundle to our csp config.
   Object.keys(cspConfig.directives).forEach((directive) => {
     cspConfig.directives[directive].push(
-      `${config.host}:${config.clientDevServerPort}`,
+      `${config.host}:${config.clientDevServerPort}`
     );
   });
 }

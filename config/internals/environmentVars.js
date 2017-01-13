@@ -35,7 +35,7 @@ function registerEnvFile() {
   // If we found an env file match the register it.
   if (envFilePath) {
     console.log( // eslint-disable-line no-console
-      colors.bgBlue.white(`==> Registering environment variables from: ${envFilePath}`),
+      colors.bgBlue.white(`==> Registering environment variables from: ${envFilePath}`)
     );
     dotenv.config({ path: envFilePath });
   }

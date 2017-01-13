@@ -15,7 +15,7 @@ import config, { clientConfig } from '../../../../config';
 function styleTags(styles) {
   return styles
     .map(style =>
-      `<link href="${style}" media="screen, projection" rel="stylesheet" type="text/css" />`,
+      `<link href="${style}" media="screen, projection" rel="stylesheet" type="text/css" />`
     )
     .join('\n');
 }

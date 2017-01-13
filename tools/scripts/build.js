@@ -6,9 +6,7 @@ import { resolve as pathResolve } from 'path';
 import webpackConfigFactory from '../webpack/configFactory';
 import { exec } from '../utils';
 import config from '../../config';
-
-// First clear the build output dir.
-exec(`rimraf ${pathResolve(appRootDir.get(), config.buildOutputPath)}`);
+import './clean';
 
 // Get our "fixed" bundle names
 Object.keys(config.bundles)
