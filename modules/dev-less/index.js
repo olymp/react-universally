@@ -48,7 +48,6 @@ module.exports = (config) => {
         loaders: [require.resolve('empty-loader')],
       }
     ));
-    console.log(target, mode, webpackConfig.module.rules);
     return webpackConfig;
   };
   return config;
