@@ -114,6 +114,7 @@ let config = {
   // one of our webpack loaders.
   // Add any required file types to the list below.
   nodeBundlesIncludeNodeModuleFileTypes: [
+    v => v === 'universally' || v.indexOf('universally/') === 0 || v.indexOf('universally-') === 0
     /\.(eot|woff|woff2|ttf|otf)$/,
     /\.(svg|png|jpg|jpeg|gif|ico)$/,
     /\.(mp4|mp3|ogg|swf|webp)$/,
