@@ -13,7 +13,7 @@
     "heroku-postbuild": "universally build"
   },
   "dependencies": {
-    "universally": "12.0.0-5"
+    "universally": "12.0.0-6"
   },
   "devDependencies": {
     "universally-dev": "12.0.0-1"
