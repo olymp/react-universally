@@ -255,7 +255,11 @@ export default function webpackConfigFactory(buildOptions) {
       // At the same time please be careful with what environment variables you
       // use in each respective bundle.  For example, don't accidentally
       // expose a database connection string within your client bundle src!
-      new webpack.DefinePlugin(merge(config.env, {
+      new webpack.DefinePlugin(merge(
+        Object.keys(config.env).reduce((prev, key) => {
+          prev['process.env.' + key] = config.env[key];
+          return prev;
+        }, {}), {
         // Adding the NODE_ENV key is especially important as React relies
         // on it to optimize production builds.
         'process.env.NODE_ENV': JSON.stringify(mode),
