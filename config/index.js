@@ -85,8 +85,12 @@ let config = {
     'otf',
   ],
 
+  // Alias dependencies
   alias: {
+  },
 
+  // Share env variables with bundles
+  env: {
   },
 
   // What should we name the json output file that webpack generates
