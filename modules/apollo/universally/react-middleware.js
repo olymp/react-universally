@@ -80,11 +80,11 @@ function reactApplicationMiddleware(request, response) {
     </CodeSplitProvider>
   );
 
-  renderToStringWithData(reactApp).then((app) => {
+  renderToStringWithData(reactApp).then((reactAppString) => {
   // Generate the html response.
   const html = generateHTML({
     // Provide the full app react element.
-    app,
+    reactAppString,
     initialState: client.store.getState().apollo.data,
     // Nonce which allows us to safely declare inline scripts.
     nonce,

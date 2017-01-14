@@ -1,6 +1,6 @@
 {
   "name": "universally-apollo",
-  "version": "12.0.0-2",
+  "version": "12.0.0-3",
   "description": "A starter kit giving you the minimum requirements for a modern universal react application.",
   "main": "./index.js",
   "dependencies": {
