@@ -14,7 +14,7 @@ import { ApolloClient, createBatchingNetworkInterface } from 'apollo-client';
 const container = document.querySelector('#app');
 
 const networkInterface = createBatchingNetworkInterface({
-  uri: '/graphql',
+  uri: process.env.API || process.env.GRAPHQL_URL || '/graphql',
   batchInterval: 5,
   opts: {
     credentials: 'same-origin',
