@@ -8,7 +8,7 @@ import config from 'universally/config';
 import fetch from 'node-fetch';
 import { parse, stringify } from './query-string';
 import { ApolloProvider } from 'react-apollo';
-import { renderToStringWithData } from 'react-apollo/server';
+import { renderToStringWithData } from 'react-apollo';
 import { ApolloClient, createNetworkInterface } from 'apollo-client';
 
 global.fetch = fetch;
