@@ -25,7 +25,7 @@ const client = new ApolloClient({
   networkInterface,
   dataIdFromObject: o => o.id,
   ssrForceFetchDelay: 100,
-  initialState: window.APP_STATE ? { apollo: { data: window.APP_STATE } } : null,
+  initialState: window.__APP_STATE__ ? { apollo: { data: window.__APP_STATE__ } } : null,
 });
 
 function renderApp(TheApp) {
