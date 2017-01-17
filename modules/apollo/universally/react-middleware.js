@@ -6,7 +6,6 @@ import generateHTML from 'universally/src/server/middleware/reactApplication/gen
 import DemoApp from '@app';
 import config from 'universally/config';
 import fetch from 'node-fetch';
-import { parse, stringify } from './query-string';
 import { ApolloProvider } from 'react-apollo';
 import { renderToStringWithData } from 'react-apollo';
 import { ApolloClient, createNetworkInterface } from 'apollo-client';
@@ -72,7 +71,7 @@ function reactApplicationMiddleware(request, response) {
   // Create our React application and render it into a string.
   const reactApp = (
     <CodeSplitProvider context={codeSplitContext}>
-      <ServerRouter stringifyQuery={stringify} parseQueryString={parse} location={decodeURI(request.url)} context={reactRouterContext}>
+      <ServerRouter location={decodeURI(request.url)} context={reactRouterContext}>
         <ApolloProvider client={client}>
           <DemoApp />
         </ApolloProvider>

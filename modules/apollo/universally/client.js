@@ -6,7 +6,6 @@ import { BrowserRouter } from 'react-router';
 import { CodeSplitProvider, rehydrateState } from 'code-split-component';
 import ReactHotLoader from 'universally/src/client/components/ReactHotLoader';
 import DemoApp from '@app';
-import { parse, stringify } from './query-string';
 import { ApolloProvider } from 'react-apollo';
 import { ApolloClient, createBatchingNetworkInterface } from 'apollo-client';
 
@@ -14,7 +13,7 @@ import { ApolloClient, createBatchingNetworkInterface } from 'apollo-client';
 const container = document.querySelector('#app');
 
 const networkInterface = createBatchingNetworkInterface({
-  uri: process.env.API || process.env.GRAPHQL_URL || '/graphql',
+  uri: '/graphql',
   batchInterval: 5,
   opts: {
     credentials: 'same-origin',
@@ -42,7 +41,7 @@ function renderApp(TheApp) {
     render(
       <ReactHotLoader>
         <CodeSplitProvider state={codeSplitState}>
-          <BrowserRouter stringifyQuery={stringify} parseQueryString={parse}>
+          <BrowserRouter>
             <ApolloProvider client={client}>
               <TheApp />
             </ApolloProvider>
