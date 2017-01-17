@@ -30,7 +30,7 @@ function scriptTags(jsFilePaths) {
 
 
 export default function generateHTML(args) {
-  const { reactAppString, initialState, nonce, helmet, codeSplitState, cssMarkup } = args;
+  const { reactAppString, initialState, nonce, helmet, codeSplitState } = args;
 
   // The chunks that we need to fetch the assets (js/css) for and then include
   // said assets as script/style tags within our html.
@@ -70,7 +70,6 @@ export default function generateHTML(args) {
         ${styleTags(assetsForRender.css)}
         ${helmet ? helmet.style.toString() : ''}
         ${process.env.GA_TRACKING_ID ? '<script type="text/javascript" async src="https://www.google-analytics.com/analytics.js"></script>' : ''}
-        ${cssMarkup ? `<style id="css-markup">${cssMarkup}</style>` : null}
       </head>
       <body>
         <div id='app'>${reactAppString || ''}</div>
