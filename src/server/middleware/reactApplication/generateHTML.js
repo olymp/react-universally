@@ -30,7 +30,7 @@ function scriptTags(jsFilePaths) {
 
 
 export default function generateHTML(args) {
-  const { reactAppString, initialState, nonce, helmet, codeSplitState } = args;
+  const { reactAppString, initialState, nonce, helmet, codeSplitState, cssMarkup } = args;
 
   // The chunks that we need to fetch the assets (js/css) for and then include
   // said assets as script/style tags within our html.
@@ -69,6 +69,8 @@ export default function generateHTML(args) {
         ${helmet ? helmet.link.toString() : ''}
         ${styleTags(assetsForRender.css)}
         ${helmet ? helmet.style.toString() : ''}
+        ${process.env.GA_TRACKING_ID ? '<script type="text/javascript" async src="https://www.google-analytics.com/analytics.js"></script>' : ''}
+        ${cssMarkup ? `<style id="css-markup">${cssMarkup}</style>` : null}
       </head>
       <body>
         <div id='app'>${reactAppString || ''}</div>
@@ -90,6 +92,16 @@ export default function generateHTML(args) {
           // rendered modules need to be rehydrated.
           codeSplitState
             ? inlineScript(`window.${STATE_IDENTIFIER}=${serialize(codeSplitState)};`)
+            : ''
+        }
+        ${
+          // Add Google Analytics
+          process.env.GA_TRACKING_ID
+            ? inlineScript(`
+              window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+              ga('create', '${process.env.GA_TRACKING_ID}', 'auto', { anonymizeIp: true });
+              ga('send', 'pageview');
+            `)
             : ''
         }
         ${
