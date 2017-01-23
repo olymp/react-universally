@@ -6,7 +6,8 @@
 
 ## About
 
-This starter kit contains all the build tooling and configuration you need to kick off your next universal React project, whilst containing a minimal "project" set up allowing you to make your own architecture decisions (Redux/MobX etc).
+This package is based on the excellent react-universally boilerplate by Sean Matheson and some great contributors. Refer to the package.json for a full list.
+It is supposed to be an alternative to create-react-app and next.js.
 
 ## Features
 
@@ -38,30 +39,50 @@ Redux/MobX, data persistence, modern styling frameworks and all the other bells 
 
 ## Getting started
 
+Create a new folder
 ```bash
-git clone https://github.com/ctrlplusb/react-universally my-project
-cd my-project
-yarn
-yarn run development
+# Create a folder for your new project
+mkdir new-project
+# cd into the folder
+cd new project
+# Init a new project to get a package.json file
+npm init
+# Install universally which will contain the core packages and functionality for your next app
+npm install universally --save
+# Install universally-dev as devDependency, it will add all that babel/webpack packages that you need during dev
+npm install universally-dev --save-dev
+# Create an 'app' folder that will contain your universal react application
+mkdir app
 ```
 
-Or, if you aren't using [`yarn`](https://yarnpkg.com/):
-
-```bash
-git clone https://github.com/ctrlplusb/react-universally my-project
-cd my-project
-npm install
-npm run development
+Now you will need to add the following scripts to your package.json file:
+```json
+"scripts": {
+  "dev": "universally dev",
+  "build": "universally build",
+  "start": "universally start",
+  "heroku-postbuild": "npm run build"
+}
 ```
 
-Now go make some changes to the `Home` component to see the tooling in action.
+Now create a very basic index.js file in your app folder 
+```jsx
+import React from 'react';
+export default () => {
+  return (
+    <span>
+      Hello World!
+    </span>
+  )
+}
+```
 
-## Docs
+To start developing, you can simply
+```bash
+# Start the dev server
+npm run dev
+```
 
- - [Project Overview](/docs/PROJECT_OVERVIEW.md)
- - [Application Configuration](/docs/APPLICATION_CONFIG.md)
- - [Package Script Commands](/docs/PKG_SCRIPTS.md)
- - [Feature Branches](/docs/FEATURE_BRANCHES.md)
- - [Deploy your very own Server Side Rendering React App in 5 easy steps](/docs/DEPLOY_TO_NOW.md)
- - [FAQ](/docs/FAQ.md)
- - [Changelog](/CHANGELOG.md)
+To deploy your app
+```bash
+```
